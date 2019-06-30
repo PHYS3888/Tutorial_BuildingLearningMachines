@@ -142,3 +142,131 @@ end
 
 Where in weight space did the neuron end up?
 Between the two variables, what did the neuron learn to pay more attention to?
+
+## Hopfield networks
+
+
+### Training
+Let's try to store four memories, corresponding to the letters `P`, `H`, `Y`, and `S` into a Hopfield network.
+Each neuron is going to be a pixel in 5x5 grid, making 25 neurons in total.
+Working with a binary Hopfield network, we note that each neuron's state can be either `-1` (inactive) or `1` (active).
+
+Our first step is to define the memories on our 5x5 grid.
+Check out the first few:
+```matlab
+plotMemory = true;
+defineMemories('P',plotMemory);
+defineMemories('H',plotMemory);
+defineMemories('Y',plotMemory);
+```
+#### Question
+Go into the code and see if you can define a new memory.
+Give it a label, so that you can access the memory using `myMemory = defineMemories('myLabel')`.
+It might help you to print out the index of the neurons in the grid you need to set to be active using:
+```matlab
+display(reshape(1:25,5,5))
+```
+
+Now let's train a Hopfield network to learn these four memories.
+
+Define the memories:
+```matlab
+plotMatrix = false;
+theMemories = {'P','H','Y','S','checker'};
+% theMemories = {'D','J','C','M'};
+numNeurons = 25;
+numMemories = length(theMemories);
+memoryMatrix = zeros(numNeurons,numMemories);
+for i = 1:numMemories
+    memoryMatrix(:,i) = defineMemories(theMemories{i},plotMatrix);
+end
+```
+
+Compute weights under Hebbian learning rule:
+```matlab
+w = trainHopfieldWeights(memoryMatrix);
+```
+
+% Plot the weights as a matrix
+```matlab
+f = figure('color','w');
+axis('square')
+imagesc(w)
+xlabel('neuron');
+ylabel('neuron');
+colormap([flipud(BF_getcmap('blues',numMemories));1,1,1;BF_getcmap('reds',numMemories)])
+colorbar()
+```
+
+#### Question
+Weights are high between neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories).
+
+Inspect plots of the memories (displayed as a 5x5 grid):
+```matlab
+f = figure('color','w');
+for i = 1:numMemories
+    subplot(1,numMemories,i);
+    defineMemories(theMemories{i},true);
+    axis('square')
+    title(sprintf('memory %u',i))
+end
+```
+
+Find:
+1. A pair of neurons that are always on together.
+2. A pair of neurons that are always off together.
+3. A pair of neurons that tend to be anticorrelated (when one is on the other is off)
+4. A pair of neurons with no particular synchronization.
+
+For each of these three pairs, predict what the weight will be in the trained Hopfield network (high positive, high negative, or zero).
+Now confirm your intuition by checking the corresponding trained weight in `w`.
+
+### Exploring stable states
+
+Ok, no we have trained a binary Hopfield network with a set of memories, with the result stored in the weight matrix, `w`.
+
+Let's look at some of the stable states of the trained network, by feeding it lots of random initial states and see what state the neurons settle down to.
+
+```matlab
+numRepeats = 20;
+f = figure('color','w');
+for i = 1:numRepeats
+    startPoint = defineMemories('random',false);
+    [finalPoint,numIters] = runHopfield(w,startPoint);
+    subplot(4,5,i);
+    imagesc(reshape(finalPoint,5,5));
+    axis('square')
+    colormap(flipud(gray))
+end
+```
+
+Do any of these states resemble the memories we were trying to store?
+
+### Restoring memories
+
+Let's start this trained network near one of our memories.
+We'll retrieve a memory, corrupt a random neuron, and see if feeding that corrupted memory into the network can restore us back to the trained memory:
+
+```matlab
+numRepeats = 5;
+startNearMemoryNumber = 5;
+startPointPure = memoryMatrix(:,startNearMemoryNumber);
+f = figure('color','w');
+for k = 1:numRepeats
+    startPoint = startPointPure;
+    corruptMe = randi(25);
+    startPoint(corruptMe) = -startPoint(corruptMe); % corrupted
+    [finalPoint,numIters] = runHopfield(w,startPoint);
+    subplot(numRepeats,2,(k-1)*2+1);
+    imagesc(reshape(startPoint,5,5));
+    axis('square')
+    title('Initial condition')
+    subplot(numRepeats,2,(k-1)*2+2);
+    imagesc(reshape(finalPoint,5,5));
+    axis('square')
+    title(sprintf('%u iterations',numIters))
+    colormap(flipud(gray))
+end
+```
+
+How did it do? Did it get confused?
