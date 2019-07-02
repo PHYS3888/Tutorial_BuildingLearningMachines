@@ -167,7 +167,7 @@ It might help you to print out the index of the neurons in the grid you need to 
 display(reshape(1:25,5,5))
 ```
 
-Now let's train a Hopfield network to learn these four memories.
+Now let's train a Hopfield network to learn these five memories.
 
 Define the memories:
 ```matlab
@@ -187,16 +187,27 @@ Compute weights under Hebbian learning rule:
 w = trainHopfieldWeights(memoryMatrix);
 ```
 
-% Plot the weights as a matrix
+Plot the weights as a matrix:
+
 ```matlab
 f = figure('color','w');
-axis('square')
 imagesc(w)
+axis('square')
 xlabel('neuron');
 ylabel('neuron');
 colormap([flipud(BF_getcmap('blues',numMemories));1,1,1;BF_getcmap('reds',numMemories)])
 colorbar()
 ```
+
+#### Question:
+Can you plot the strongest weights as a graph?
+HINT: You can make a graph object with a threshold on which weights to keep.
+E.g., `strongGraph = graph(w>1);`
+
+Look at what happens when you increase the threshold?
+Do the most strongly connected groups of neurons make sense?
+Repeat for the most strongly negatively correlated pairs of neurons.
+
 
 #### Question
 Weights are high between neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories).
@@ -249,7 +260,7 @@ We'll retrieve a memory, corrupt a random neuron, and see if feeding that corrup
 
 ```matlab
 numRepeats = 5;
-startNearMemoryNumber = 5;
+startNearMemoryNumber = 1;
 startPointPure = memoryMatrix(:,startNearMemoryNumber);
 f = figure('color','w');
 for k = 1:numRepeats
@@ -269,4 +280,86 @@ for k = 1:numRepeats
 end
 ```
 
-How did it do? Did it get confused?
+How did it do?
+What sort of stable states did you find? How do they relate to your memories?
+Did you find any stable states that are inverses of your memories?
+How did it get confused?
+
+### Brain Damage
+How robust is the network to some damage?
+Start by having a guess as to the proportion of network weights that can be set to zero before the network's function breaks down.
+
+Write a function `wCorrupted = brainDamage(w,propCorrupt)` that takes as input a trained weight matrix, `w`, and a proportion of weights to randomly set to zero `propCorrupt`, such that setting `propCorrupt = 0.1` sets 10% of the weights to zero.
+HINT: The `squareform` function will help you unravel the upper triangle weights into a vector: `wVector = squareform(w)`, and can also be used to transform back to a zero-diagonal matrix, `w = squareform(wVector);`.
+You might want to use the `randperm` function to randomly select elements to delete.
+
+Now you can repeat the above exercise on memory restoration, but using the corrupted network defined by `wCorrupted`.
+Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
+At what proportion does the network start to break down?
+How does this compare to a computer circuit?
+
+ADVANCED (OPTIONAL): for each value of `propCorrupt`, quantify the associative memory performance, `meanMatch`, of the network by the average proportion of neurons that don't match the desired state.
+Summarize the network's performance as a scatter plot of `propCorrupt` against `meanMatch`.
+How is this curve dependent on the target memory?
+
+### Task (optional): An overloaded network
+How many memories can we squeeze into our 25-neuron network?
+Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overtrained network can affect the stability of the desired memories.
+
+# Improving on the Hebb rule
+
+In lectures we recast the problem such that memories define a classification problem for each neuron.
+
+Below is some simple code to implement this variant on the Hebb rule given a neuron x memory matrix of memories, `memoryMatrix`:
+
+```matlab
+% Set learning rate:
+eta = 1;
+% Convert memoryMatrix (-1/1) to binary memories (0/1):
+binaryMemories = memoryMatrix;
+binaryMemories(binaryMemories==-1) = 0;
+% Define sigmoidal function:
+sigmoid = @(x) 1/(1 + exp(-x));
+% Start weights as they would be according to the Hebbian rule:
+w0 = trainHopfieldWeights(memoryMatrix);
+
+w = w0;
+numIterations = 100;
+for i = 1:numIterations
+    % Ensure self-weights are zero:
+    w(logical(eye(size(w)))) = 0;
+
+    % Activations:
+    a = w'*memoryMatrix;
+    % Pass through a sigmoid:
+    predictedOutputs = arrayfun(sigmoid,a);
+    % Compute errors:
+    neuronErrors = binaryMemories - predictedOutputs;
+    % Compute gradients:
+    wGrad = memoryMatrix*neuronErrors';
+    % Symmetrize:
+    wGradSym = wGrad + wGrad';
+    % Update weights in direction of the gradient:
+    w = w + eta*wGradSym;
+end
+```
+
+Let's see if the weights have changed much from this process:
+```matlab
+f = figure('color','w');
+subplot(1,3,1);
+imagesc(w0)
+title('Hebbian weights')
+
+subplot(1,3,2);
+imagesc(w)
+title('Classification-trained weights')
+
+subplot(1,3,3);
+imagesc(w-w0)
+title('Weight differences')
+
+colormap([flipud(BF_getcmap('blues',numMemories));1,1,1;BF_getcmap('reds',numMemories)])
+```
+
+Question: are the weight changes focused on any particular neurons? Why might this be the case?
