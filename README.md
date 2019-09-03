@@ -1,71 +1,66 @@
-# Artificial Intelligence
+# PHYS3888 Tutorial: Building Learning Machines
 
 This tutorial will walk you through some core concepts in artificial intelligence.
 
 ## Weight space of a single neuron
 
-Recall that a sigmoidal function can be used to map a neuron's activation to an output value.
+Recall that a sigmoidal function can be used to map a neuron's activation to its output.
+Let's first get an intuition for how neuronal activation maps to neuron output for a set of inputs, `x`:
 
-### The one-dimensional neuron
-Let's first get an intuition for neuronal activation for a neuron with a single input, `x`.
-The neuron's output, `y`, can be computed by defining an inline function as:
+![](figs/sigmoid.png)
+
+Write an inline function, as `y = @(x,w) ...`, that implements this nonlinear function for scalars `x` and `w`.
+
+Can you adjust this function to work for the convention used in this tutorial: `w` is a row vector and `x` is a column vector?
+
+:question::question::question:
+Check that you have implemented this function correctly by evaluating for `x = [1;1]`, `w = [2,-1]` as:
 
 ```matlab
-y = @(x,w) 1/(1 + exp(-w*x));
+x = [1; 1];
+w = [2, -1];
+y(x,w)
 ```
 
-#### TASK: one-dimensional neuron
-Plot this function for some different values of the weight parameter, `w`.
-What happens when `w = 0`?
-How does a higher weight magnitude shape the neuron's response to the same input?
-For the same weight magnitude, what does flipping its sign do to the neuron's response to the same input?
+### The one-dimensional neuron
 
-_(Hint: You can define a range for the input `x`, using `linspace`.)_
+![!](figs/1d_neuron.png)
+
+Consider the case where our model neuron has a single input, `x`, then the neuron's behavior has just a single degree of freedom, the scalar value `w`.
+Plot `y` as a function of `x` for some different values of the weight parameter, `w` (_Hint:_ you can use `linspace` to define a range for `x`).
+
+* What happens when `w = 0`?
+* How does a higher weight magnitude shape the neuron's response to the same input?
+* For the same weight magnitude, what does flipping its sign do to the neuron's response to the same input?
 
 ### The two-dimensional neuron
 
-The same function, `y`, defined above can be used for multiple inputs, through the use of the inner product between the weight vector, `w`, and the input vector, `x`.
-
-Above we had a one-dimensional weight space (we set a single parameter to define the neuron's behavior, the scalar `w`) and a one-dimensional input space (the single input `x`).
-But now we have a two-dimensional weight space (we can set/learn two numbers, `w = [w1,w2]`, which define the neuron's response to two inputs, `x = [x1,x2]`).
+Let's now imagine that we have a two-dimensional input space.
+Now we have the freedom to set/learn two numbers, `w = [w1,w2]`, which define the neuron's response to two inputs, `x = [x1,x2]`).
 Thus, each point in weight space (defined by two numbers, `[w1,w2]`) defines a function of the two inputs, `[x1,x2]`.
 
-Let's try looking at some points in weight space:
+![](figs/2d_neuron.png)
 
-#### Setting equal weight makes each input count the same in the neuron's response
+Let's try looking at some points in the two-dimensional weight space.
 
-(Note that the for loop can be avoided in the below using meshgrid and reshaping, but it reads clearly in a for loop):
+![](figs/weightSpace.png)
+
+We can plot these surfaces by setting `w`, and then computing the function `y` across a grid in `x1` and `x2`.
+Take a look at the function `plotNeuronResponse` and verify that you understand how it does these steps.
+
+Then take a look at some surfaces by first setting `w` and then running `plotNeuronResponse` using the `y` function you coded above.
+For example:
 
 ```matlab
-% Parameters:
 w = [1,-1];
-plotAsSurface = true;
-numPoints = 20;
-
-% Compute the input space and output values:
-x1 = linspace(-5,5,numPoints);
-x2 = linspace(-5,5,numPoints);
-neuronOutput = zeros(numPoints);
-for i = 1:numPoints
-    for j = 1:numPoints
-        neuronOutput(i,j) = y([x1(i);x2(j)],w);
-    end
-end
-
-% Plot:
-f = figure('color','w');
-if plotAsSurface
-    surf(x1,x2,neuronOutput')
-else
-    imagesc(x1,x2,neuronOutput)
-end
-xlabel('x1')
-ylabel('x2')
-zlabel('y')
+plotAsSurface = false; % turn this off if you prefer to look at an image map
+plotNeuronResponse(y,w,plotAsSurface);
 ```
 
-QUESTION: When does the neuron have minimal output? Maximal output?
-QUESTION: Repeat the above with `w = [1,0]`. What input is the neuron sensitive to?
+* When does the neuron tuned to `w = [1,-1]` have minimal output?
+Maximal output?
+* Plot the neuron response to inputs when `w = [1,0.2]`.
+Does the shape of the surface verify your intuition about which input the neuron is more sensitive to?
 
 
 ### Training a single neuron to distinguish fashion models from sports stars
@@ -84,7 +79,7 @@ Plot the data as a scatter, coloring each individual by their `sport`/`model` la
 ```matlab
 f = figure('color','w');
 scatter(dataMat(:,1),dataMat(:,2),50,isModel,'filled');
-colormap(jet)
+colormap(cool)
 xlabel('Number of instagram followers')
 ylabel('Resting heart rate')
 ```
@@ -105,12 +100,12 @@ x2range = linspace(min(dataMatNorm(:,2)),max(dataMatNorm(:,2)),20);
 % Update weight using error on a given individual:
 f = figure('color','w'); hold('on'); colormap('jet')
 subplot(1,2,1); hold('on'); axis('square')
-title('Neuron parameters')
+title('Neuron parameters (weight space)')
 S = scatter(w(1),w(2),50,1/1000,'filled');
 xlabel('w1 (insta followers)'); ylabel('w2 (resting heart rate)')
 subplot(1,2,2); axis('square'); hold on;
 scatter(dataMatNorm(:,1),dataMatNorm(:,2),50,isModel,'filled');
-H = plot(dataMatNorm(1,1),dataMatNorm(1,2),'xr','MarkerSize',20)
+H = plot(dataMatNorm(1,1),dataMatNorm(1,2),'xr','MarkerSize',20);
 [~,C] = contour(x1,x2,neuronOutput',5);
 xlabel('Instagram followers (normalized)')
 ylabel('Resting heart rate (normalized)')
