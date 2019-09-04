@@ -245,127 +245,101 @@ for i = 1:numRepeats
 end
 ```
 
-Do any of these states resemble the memories we were trying to store?
+With such a simple set of rules---how did our miniature neural network do?
+What sort of stable states did you find?
+Do any of them resemble the memories that we're trying to store?
+
+Did you find any stable states that are inverses of your memories?
+Why might this happen?
 
 ### Restoring memories
 
-Let's start this trained network near one of our memories.
-We'll retrieve a memory, corrupt a random neuron, and see if feeding that corrupted memory into the network can restore us back to the trained memory:
+Let's test whether the network can do some basic error correction.
+We will start our trained network near one of our memories, then corrupt a random neuron's state.
+Our hope is that the network dynamics will self-correct that corrupted neural state back to one of our desired memories.
+
+Most of the work is done for your below, you just need to add some code to flip the state of a random neuron.
 
 ```matlab
+startNearMemoryNumber = 5;
 numRepeats = 5;
-startNearMemoryNumber = 1;
 startPointPure = memoryMatrix(:,startNearMemoryNumber);
 f = figure('color','w');
+colormap(flipud(gray))
 for k = 1:numRepeats
     startPoint = startPointPure;
-    corruptMe = randi(25);
-    startPoint(corruptMe) = -startPoint(corruptMe); % corrupted
+    % ----------------
+    % ----ADD CODE HERE TO FLIP A RANDOM NEURON'S STATE -> startPoint----
+    % ----------------
+
+    % Simulate network dynamics until an equilibrium is found:
     [finalPoint,numIters] = runHopfield(w,startPoint);
+
+    % Plot the initial (corrupted) state:
     subplot(numRepeats,2,(k-1)*2+1);
     imagesc(reshape(startPoint,5,5));
     axis('square')
     title('Initial condition')
+
+    % Plot the final (equilibrium) state:
     subplot(numRepeats,2,(k-1)*2+2);
     imagesc(reshape(finalPoint,5,5));
     axis('square')
     title(sprintf('%u iterations',numIters))
-    colormap(flipud(gray))
 end
 ```
 
-How did it do?
-What sort of stable states did you find? How do they relate to your memories?
-Did you find any stable states that are inverses of your memories?
-How did it get confused?
-
-### Brain damage
-How robust is the network to some damage?
-Start by having a guess as to the proportion of network weights that can be set to zero before the network's function breaks down.
-
-Write a function `wCorrupted = brainDamage(w,propCorrupt)` that takes as input a trained weight matrix, `w`, and a proportion of weights to randomly set to zero `propCorrupt`, such that setting `propCorrupt = 0.1` sets 10% of the weights to zero.
-HINT: The `squareform` function will help you unravel the upper triangle weights into a vector: `wVector = squareform(w)`, and can also be used to transform back to a zero-diagonal matrix, `w = squareform(wVector);`.
-You might want to use the `randperm` function to randomly select elements to delete.
-
-Now you can repeat the above exercise on memory restoration, but using the corrupted network defined by `wCorrupted`.
-Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
-At what proportion does the network start to break down?
-How does this compare to a computer circuit?
-
-ADVANCED (OPTIONAL): for each value of `propCorrupt`, quantify the associative memory performance, `meanMatch`, of the network by the average proportion of neurons that don't match the desired state.
-Summarize the network's performance as a scatter plot of `propCorrupt` against `meanMatch`.
-How is this curve dependent on the target memory?
-
-### Task (optional): An overloaded network
-How many memories can we squeeze into our 25-neuron network?
-Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overtrained network can affect the stability of the desired memories.
-
-#### A new memory
-Go into the code and define yourself a new memory.
-Give it a label, so that you can access the memory using `myMemory = defineMemories('myLabel')`.
-It might help you to print out the index of the neurons in the grid you need to set to be active using:
-```matlab
-display(reshape(1:25,5,5))
-```
+How did the network do?
+Run the code for a few different memories by altering `startNearMemoryNumber`.
 
 :question::question::question:
-What was your memory and how well did the network learn it?
-Why do you think the performance was good/bad?
+Are some memories easier to restore than others?
+Why might this be?
 
-# Improving on the Hebb rule
+### Brain damage
+_How robust is the network to some damage?_
+Imagine opening up your smartphone or phablet and pulling out some of the connections between its components.
+How many do you think you could destroy before your phone is useless?
+
+What about for our Hopfield network---what is your guess of the proportion of network weights that can be set to zero before the network's function breaks down.
+Write it down!
+
+![](figs/brainDamage.png)
+
+Write a function `wCorrupted = brainDamage(w,propCorrupt)` that takes as input a trained weight matrix, `w`, and outputs `wCorrupted, a version where a set proportion of weights, `propCorrupt`, have been set to zero.
+
+For example, setting `propCorrupt = 0.1` should set 10% of the weights to zero.
+_HINT_: The `squareform` function will help you unravel the upper triangle weights into a vector: `wVector = squareform(w)`, and can also be used to transform back to a zero-diagonal matrix, `w = squareform(wVector);`.
+You may use the `randperm` function to randomly select elements to delete.
+
+Repeat the above exercise on memory restoration, but using the corrupted network defined by `wCorrupted` (instead of the original weights, `w`).
+Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
+
+:question::question::question:
+At approximately what proportion, `propCorrupt` does the network's performance start to break down?
+
+How does this compare to a computer circuit?
+How close was your original guess?
+
+#### :fire::fire::fire: (Optional): Quantifying performance breakdown
+
+For each value of `propCorrupt`, quantify the associative memory performance, `meanMatch`, of the network by the average proportion of neurons that don't match the desired state.
+Summarize the network's performance as `meanMatch` as a function of `propCorrupt`.
+How do these curves vary with the target memory to be restored?
+
+### :fire::fire::fire: (Optional): An overloaded network
+How many memories can we squeeze into our 25-neuron network?
+
+Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overloaded network can affect the stability of our desired memories.
+Are different sets of memories more amenable to storage than others?
+
+### :fire::fire::fire::fire::fire: (Optional chellenge): Improving on Hebb
 
 In lectures we recast the problem such that memories define a classification problem for each neuron.
 
-Below is some simple code to implement this variant on the Hebb rule given a neuron x memory matrix of memories, `memoryMatrix`:
+This suggests that we can recast each neuron's state as a classification problem in response to the state of the other neurons, and thus use the weight-update rule that we investigated above.
 
-```matlab
-% Set learning rate:
-eta = 1;
-% Convert memoryMatrix (-1/1) to binary memories (0/1):
-binaryMemories = memoryMatrix;
-binaryMemories(binaryMemories==-1) = 0;
-% Define sigmoidal function:
-sigmoid = @(x) 1/(1 + exp(-x));
-% Start weights as they would be according to the Hebbian rule:
-w0 = trainHopfieldWeights(memoryMatrix);
+Using the Hebbian-trained network weights as a starting point, see if you can implement single-neuron weight-update learning rules to improve network performance in restoring memories.
 
-w = w0;
-numIterations = 100;
-for i = 1:numIterations
-    % Ensure self-weights are zero:
-    w(logical(eye(size(w)))) = 0;
-
-    % Activations:
-    a = w'*memoryMatrix;
-    % Pass through a sigmoid:
-    predictedOutputs = arrayfun(sigmoid,a);
-    % Compute errors:
-    neuronErrors = binaryMemories - predictedOutputs;
-    % Compute gradients:
-    wGrad = memoryMatrix*neuronErrors';
-    % Symmetrize:
-    wGradSym = wGrad + wGrad';
-    % Update weights in direction of the gradient:
-    w = w + eta*wGradSym;
-end
-```
-
-Let's see if the weights have changed much from this process:
-```matlab
-f = figure('color','w');
-subplot(1,3,1);
-imagesc(w0)
-title('Hebbian weights')
-
-subplot(1,3,2);
-imagesc(w)
-title('Classification-trained weights')
-
-subplot(1,3,3);
-imagesc(w-w0)
-title('Weight differences')
-
-colormap([flipud(BF_getcmap('blues',numMemories));1,1,1;BF_getcmap('reds',numMemories)])
-```
-
-Question: are the weight changes focused on any particular neurons? Why might this be the case?
+Are the weight changes focused on any particular neurons?
+Why might this be the case?
