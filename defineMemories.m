@@ -18,7 +18,8 @@ case 'Y'
     myGrid([1,5,7,9,13,17,21]) = 1;
 case 'S'
     myGrid([2,5,6,8,10,11,13,15,16,18,20,21,24]) = 1;
-case 'checker' % Make a checkerboard:
+case {'checker','checkerboard'}
+    % Make a checkerboard:
     myGrid(1:2:end) = 1;
 case 'D'
     myGrid([1,6:10,11,15,16,20,22:24]) = 1;
