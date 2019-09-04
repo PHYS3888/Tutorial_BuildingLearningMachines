@@ -333,7 +333,12 @@ How many memories can we squeeze into our 25-neuron network?
 Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overloaded network can affect the stability of our desired memories.
 Are different sets of memories more amenable to storage than others?
 
-### :fire::fire::fire::fire::fire: (Optional challenge): Improving on Hebb
+### :fire::fire::fire: (Optional): Bigger is better
+
+Try storing equivalent versions of the same five memories in a bigger network (e.g., in an 8x8 grid).
+Does the network display better performance?
+
+### :fire::fire::fire::fire::fire: (Optional Challenge): Improving on Hebb
 
 In lectures we recast the problem such that memories define a classification problem for each neuron.
 
