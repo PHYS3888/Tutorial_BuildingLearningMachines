@@ -194,6 +194,7 @@ Take another look at the memories we're trying to store, displayed as a 5x5 grid
 ```matlab
 f = figure('color','w');
 theMemories = {'P','H','Y','S','checker'};
+numMemories = length(theMemories);
 for i = 1:numMemories
     subplot(1,numMemories,i);
     defineMemories(theMemories{i},true);
