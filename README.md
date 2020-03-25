@@ -56,35 +56,34 @@ For example:
 
 ```matlab
 w = [1,-1];
-plotAsSurface = false; % turn this off if you prefer to look at an image map
+plotAsSurface = false; % turn this on if you prefer to look at a 3d surface
 plotNeuronResponse(y,w,plotAsSurface);
 ```
 
 * When does the neuron tuned to `w = [1,-1]` have minimal output?
 Maximal output?
-* Plot the neuron response to inputs when `w = [1,0.2]`.
-Does the shape of the surface verify your intuition about which input the neuron is more sensitive to?
-
+* If we set `w = [1,0.2]`, which of the two inputs is the neuron more sensitive to? Plot the neuron's response to inputs for this set of weights to check your intuition.
 
 ### Training a single neuron to perform classification
 
-As in lectures, we found that the process of setting weights is akin to learning an input-output relationship.
-We took our first steps towards the machine-learning approach, of being able to have this learning process determined automatically from exposing our neuron to enough labeled training data, in a process known as _supervised learning_.
+In lectures we found that the process of setting weights is akin to learning a desired relationship between inputs and outputs.
+We took our first steps towards the machine-learning approach to _supervised learning_ whereby a flexible learning structure (like the single neuron) can find a good input-output mapping from a labeled training dataset.
 
-We will consider the case where our poor neuron is forced to predict whether a person is an 'instagram model' or a 'sports star', from two pieces of information:
+We will consider the case where our poor neuron is forced to predict whether a person is an 'instagram model' :star2: or a 'sports star' :running:, from two pieces of information:
 1. Number of instagram followers
 2. Resting heart rate
 
-Suppose we go and survey a bunch of such people and assemble the data as a person by feature matrix, `dataMat`, and a binary vector, `isModel`, that labels each row as representing either a sports star (`0`) or a fashion model (`1`).
+Suppose we surveyed a bunch of instagram models and sports stars and assemble the data as a person x feature matrix, `dataMat`, and a binary vector, `isModel`, that labels each row as representing either a sports star (`0`) or a fashion model (`1`).
 
-Load the data:
+Let's load this resulting dataset:
 
 ```matlab
 load('ModelSportData.mat','dataMat','isModel')
 ```
-Have a look at what you have just loaded in.
+Have a peek at the variables 'dataMat' and `isModel` that you just loaded in.
+The first column of `dataMat` is the number of instagram followers each person has, and the second column is their resting heart rate.
 
-Use the `scatter` function to plot the data as a scatter, coloring each individual by their `sport`/`model` label:
+We can use the `scatter` function to plot the data as a scatter, coloring each individual by their `sport`/`model` label, e.g.,:
 ```matlab
 f = figure('color','w');
 scatter(dataMat(:,1),dataMat(:,2),50,isModel,'filled');
@@ -94,31 +93,33 @@ ylabel('Resting heart rate')
 colorbar
 ```
 
-Replot using `dataMatNorm` instead of `dataMat`, which has z-scored the columns of dataMat (use the `zscore` function).
-Verify that the _z_-score transformation, which removes the mean and standardizes the variance, puts the two measurements on a similar scale.
-This allows us to interpret the relative size of `w` as relative importance scores (independent of the fact that the instagram followers is measured on a vastly different scale to resting heart rate).
+Note that the number of instagram followers is on a vastly different scale to resting heart rate.
+We can put them on a similar scale by applying a _z_-score transformation, which removes the mean and standardizes the variance of both features.
+By defining `dataMatNorm = zscore(dataMat)`, replot the above scatter, verifying that both measurements have been standardized.
+Working with `dataMatNorm` allows us to interpret the relative size of `w` as relative importance scores (independent of the very different scales of the two measurements).
 
-Of the two input variables, which one do you think will have higher weight in the trained neuron?
+Now looking at the scatter using `dataMatNorm`, which of the two variables do you think will have higher weight in the trained neuron?
 
-Our information theoretic error metric is implemented in `errorFunction`.
-To test your intuition about the relative weights, evaluate the error at a few selected values of `w`.
+Remember the classification error metric, `G`, that we defined in lectures?
+The computation of `G` is implemented in the function, `errorFunction`.
+Test your intuition about which relative values of weights, `w`, are likely to give good performance by evaluating the error at a few selected values of `w`:
 
 ```matlab
 totalError = errorFunction(y,w,dataMatNorm,isModel);
 ```
 
+:question::question::question:
 At each of 20 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
-Take your samples from the matrix `wRand = 2*(rand(20,2)-0.5);`
-Where in `w1,w2` space are you getting low error values?
-
-:question::question::question: Upload your plot (labeling axes and showing the colorbar).
+Take your samples from the matrix `wRand = 2*(rand(20,2)-0.5);`.
+Where in `w1,w2` space are you getting low errors?
+Upload your plot (labeling axes and showing the colorbar).
 
 ### Learning from data through incremental updating
 
-Recall from the lecture that, from a given starting point in weight space, we can move in weight space along the direction of maximal decrease in the error function, `G`, to iteratively improve our classification performance.
-This will be much more efficient than the random sampling we tried above.
+Recall from the lecture that, from a given starting point in weight space, we can move through weight space along the direction of maximal decrease in the error function, `G`.
+This guides us to iteratively improve our classification performance and will be much more efficient than the random sampling we tried above.
 
-Let's see if our neuron can learn the difference between the two types of people by moving around in weight space.
+Let's see if our neuron can learn the difference between the two types of people by iteratively adjusting weights to reduce the error, `G` :grinning:.
 
 In the function `IncrementalUpdate`, there is a simple implementation of incremental weight updating, computed for a single point of data.
 For a given point in weight space, this evaluates the gradients in response to a single data point, and uses the learning rule in lectures to adjust the weights.
@@ -126,16 +127,16 @@ To test the behavior of this rule, we will randomly sample observations in the d
 
 ![](figs/incrementalUpdating.png)
 
-Have a quick look at this formula.
-How much are the weights adjusted when the neuron makes a prediction equal to the sample's actual label?
-What happens when I increase the learning rate, `eta`?
+Inspect the equations above, that we introduced in the lecture (but adapted to update for each new data point, `xj` with label `t`).
+* How much are the weights adjusted when the neuron makes a prediction, `y`, equal to the sample's actual label, `t`?
+* What happens when we increase the learning rate, `eta`?
 
-Try starting it somewhere you know is a bad place to start to see if the rule moves you to a good set of weights.
+Try starting the weights somewhere that you know is a bad place to start so that we can investigate whether the learning rule above moves us to a good set of weights:
 
 ```matlab
-% Set a learning rate
+% Set a learning rate:
 eta = ;
-% Set initial point in weight space
+% Set initial point in weight space:
 w0 = ;
 numIterations = 100;
 IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations);
@@ -143,31 +144,35 @@ IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations);
 
 What is being plotted? Inspect the code in `IncrementalUpdate` if you are unsure.
 
-Where in weight space did the neuron end up? Does the neuron get more accurate at predicting instagram models from iteratively updating its weights?
+Check your understanding by answering the following questions:
+* Where in weight space did the neuron end up?
+* Did the neuron get more accurate?
+* Between the two variables, what characteristic of the individuals did the neuron learn to pay more attention to?
+* How does the width of the decision boundary vary over time? Does the neuron get 'more confident'?
 
-Between the two variables, what characteristic of the individuals did the neuron learn to pay more attention to?
-
-How does the width of the decision boundary vary over time? Does the neuron get 'more confident'?
-
-Test three learning rates: `eta = 0.02`, `eta = 2`, and `eta = 200` (`w0 = [-1,-1]`, `numIterations = 100`).
-
-:question::question::question: Which of these three learning rates gives the most stable final result within the 100 iterations?
+:question::question::question:
+Test three learning rates: `eta = 0.02`, `eta = 2`, and `eta = 200` (using initial weights `w0 = [-1,-1]` and `numIterations = 100`).
+Which of these three learning rates gives the most stable final result within the 100 iterations?
 
 ## Part 2: Storing Memories in Hopfield Networks
 
 Recall how a simple Hebbian learning mechanism can allow memories to be stored in networks of connected neurons.
+Networks that update weights using a Hebbian learning rule are called Hopfield Networks.
+
+In this tutorial, we're going to attempt to store a total of five memories: the four letters `P`, `H`, `Y`, `S`, and a checkerboard :checkered_flag:, into a binary Hopfield network.
+Exciting, huh? :satisfied:
+
+So that our network can code for the five desired images, we're going to make each neuron be a pixel in 5x5 grid, so we'll have a total of 25 neurons in our network.
+Recall that in a binary Hopfield network, each neuron's state is either `-1` (inactive) or `1` (active).
 
 ### Defining memories
-Let's try to store four memories, corresponding to the letters `P`, `H`, `Y`, `S`, and a checkerboard, into a Hopfield network.
-Each neuron is going to be a pixel in 5x5 grid, making 25 neurons in total.
-We will be working with a binary Hopfield network, where each neuron's state can be either `-1` (inactive) or `1` (active).
-
 Our first step is to define the memories on our 5x5 grid, which we will implement in the function `defineMemories`.
 Plot each of our desired memories, `'P'`, `'H'`, `'Y'`, `'S'`, and `'checker'`, using the `defineMemories` function.
+
 Do you see how the state of the neurons in the network can be used to store useful information?
 Cute, huh? :smirk:
 
-Write some code using the `defineMemories` function to represent our five desired memories in a neuron x memory (25 x 5) matrix, `memoryMatrix`.
+Using the `defineMemories` function, write some code to represent our five desired memories in a neuron x memory (25 x 5) matrix, `memoryMatrix`.
 
 ### Training a Hopfield network
 
@@ -178,17 +183,17 @@ Stare at the Hebbian learning rule for setting weights between pairs of neurons 
 
 ![](figs/hebbianLearningRule.png)
 
-This simple step is implemented in `trainHopfieldWeights`, so we can simply compute our set of weights, `w`, as:
+This simple step is implemented in `trainHopfieldWeights`, so we can simply compute our weights, `w`, as:
 ```matlab
 w = trainHopfieldWeights(memoryMatrix);
 ```
 
-Have a look at the weights you've just trained using the simple `PlotWeightMatrix` function.
+Have a look at the weights you've just trained, as `PlotWeightMatrix(w)`.
 
 ### Inspecting network weights
 
-Our Hebbian rule implemented the intuition that neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories), 'wire together'.
-Let's check whether this has actually happened.
+Our Hebbian rule is supposed to 'wire together' neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories should now be connected by strong weights).
+Let's check whether this actually happened.
 
 Take another look at the memories we're trying to store, displayed as a 5x5 grid:
 ```matlab
@@ -207,32 +212,37 @@ Note that the neuron indices are distributed across the 5x5 grid as `reshape(1:2
 
 Looking across the five memories, note down neuron indexes for:
 1. Two neurons that tend to be on together (or off together).
-2. Two neurons that tend to be anticorrelated (when one is on the other is off and vice versa).
+2. Two neurons that tend to be anti-correlated (when one is on the other is off and vice versa).
 3. Two neurons with no particular synchronization.
 
 For each of these four pairs, predict what the weight will be in the trained Hopfield network (high positive, high negative, or near-zero).
-Test your intuition by checking the corresponding trained weights in `w`.
-Do the values of `w` for your mirror the patterns in the memories?
 
-Plot a graph containing just the strongest neuron-neuron weights by setting a threshold on `w` (use the `graph` function).
-Set a sensible threshold; do the most strongly connected groups of neurons make sense given the memories you defined?
+* Test your intuition by checking the corresponding trained weights in `w`.
+* Do the values of `w` for your mirror the patterns in the memories?
+
+#### The strongest weights
+
+Note that you can threshold the weights (`wStrong = (w > t)`, for some threshold `t`), to construct a binary adjacency matrix, `wStrong`, that removes all weights less than the threshold `t`.
+Recall from the first lecture that you can convert a binary adjacency matrix to a graph as (`G = graph(A)`) and plot it (`p = plot(G)`).
+
+Using these techniques, plot a graph containing just the strongest neuron-neuron weights by setting a sensible threshold on `w`.
+Can you make sense of the most strongly connected groups of neurons, given the memories that you defined?
+
 Repeat for the most strongly negatively correlated pairs of neurons.
 
 :question::question::question: Which set of four neurons have states that are most strongly correlated to each other across the five memories?
 
 ### Exploring stable states
 
-Ok, so we have trained a binary Hopfield network with a set of five memories, with the result stored in the weight matrix, `w`.
-Even better: we understand what the network weights represent.
-
+Ok, so we have trained a binary Hopfield network with five memories, yielding the trained weights, `w`.
+And even better: we now understand what the network weights represent.
 Now comes the time to test the network's performance in recalling the memories we've fed it.
-Let's look at some of the stable states of the trained network, by feeding it lots of random initial states and see what state the neurons settle down to.
+We're going to look at some of the stable states of the trained network by feeding it lots of random initial states and seeing what sorts of states the network settles down to (hopefully it can reproduce some of our memories :pray:)
 
 Play with the `runHopfield(w,startPoint)` function.
 This function simulates the network dynamics, determined by activation rule of individual neurons, and outputs the state of the network when it reaches equilibrium.
-Verify that you can run the code with a random starting point.
 
-Fill your code for setting a random starting point into the code below, and inspect the types of equilibrium states our trained network has:
+Fill in code below to set a random starting point, and inspect the types of equilibrium states the trained network has:
 ```matlab
 numRepeats = 20;
 f = figure('color','w');
@@ -246,11 +256,10 @@ for i = 1:numRepeats
 end
 ```
 
-With such a simple set of rules---how did our miniature neural network do?
-What sort of stable states did you find?
-Do any of them resemble the memories that we're trying to store?
-
-Did you find any stable states that are inverses of your memories?
+Armed with such simple rules, how did our little neural network do?:
+* What sort of stable states did you find?
+* Do any of them resemble the memories that we've been trying to store?
+* Did you find any stable states that are inverses of your memories?
 Why might this happen?
 
 ### Restoring memories
@@ -299,18 +308,19 @@ Why might this be?
 
 ### Brain damage
 _How robust is the network to some damage?_
-Imagine opening up your smartphone or phablet and pulling out some of the connections between its components.
-How many do you think you could destroy before your phone is useless?
+Imagine opening up your smartphone or phablet and pulling out some of the connections between its components :hammer:.
+How many do you think you could destroy before your phone would stop working?
 
-What about for our Hopfield network---what is your guess of the proportion of network weights that can be set to zero before the network's function breaks down.
-Write it down!
+What about for our Hopfield network?
+What is your guess of the proportion of network weights that can be set to zero before the network's function breaks down.
+Write it down! :memo:
 
 ![](figs/brainDamage.png)
 
-Write a function `wCorrupted = brainDamage(w,propCorrupt)` that takes as input a trained weight matrix, `w`, and outputs `wCorrupted, a version where a set proportion of weights, `propCorrupt`, have been set to zero.
+Write a function `wCorrupted = brainDamage(w,propCorrupt)` that takes as input a trained weight matrix, `w`, and outputs `wCorrupted`, a version where a set proportion of weights, `propCorrupt`, have been set to zero.
 
 For example, setting `propCorrupt = 0.1` should set 10% of the weights to zero.
-_HINT_: The `squareform` function will help you unravel the upper triangle weights into a vector: `wVector = squareform(w)`, and can also be used to transform back to a zero-diagonal matrix, `w = squareform(wVector);`.
+_HINT_: The `squareform` function will help you unravel the upper triangle weights into a vector: `wVector = squareform(w);`, and can also be used to transform back to a zero-diagonal matrix, `w = squareform(wVector);`.
 You may use the `randperm` function to randomly select elements to delete.
 
 Repeat the above exercise on memory restoration, but using the corrupted network defined by `wCorrupted` (instead of the original weights, `w`).
@@ -319,8 +329,8 @@ Qualitatively explore the robustness of the memory restoration capability as a f
 :question::question::question:
 At approximately what proportion, `propCorrupt` does the network's performance start to break down?
 
-How does this compare to a computer circuit?
-How close was your original guess?
+* How does this compare to a computer circuit?
+* How close was your original guess?
 
 #### :fire::fire::fire: (Optional): Quantifying performance breakdown
 

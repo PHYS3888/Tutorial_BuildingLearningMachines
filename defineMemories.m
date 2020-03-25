@@ -30,7 +30,7 @@ case 'J'
 case 'M'
     myGrid([1:5,7,13,17,21:25]) = 1;
 case 'random'
-    turnMeOn = (rand(25,1)>0.5);
+    turnMeOn = (rand(25,1) > 0.5);
     myGrid(turnMeOn) = 1;
 otherwise
     error('Unknown letter ''%s''',whatLetter);
