@@ -327,7 +327,7 @@ Repeat the above exercise on memory restoration, but using the corrupted network
 Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
 
 :question::question::question:
-At approximately what proportion, `propCorrupt` does the network's performance start to break down?
+At approximately what proportion, `propCorrupt`, does the network cease to have useful function?
 
 * How does this compare to a computer circuit?
 * How close was your original guess?
