@@ -77,7 +77,7 @@ Maximal output?
 
 ### Training a single neuron to perform classification
 
-In lectures we found that the process of setting weights is akin to learning a desired relationship between inputs and outputs.
+In lectures we found that the process of adjusting weights allows the neuron to learn a desired relationship between inputs and outputs.
 We took our first steps towards the machine-learning approach to _supervised learning_ whereby a flexible learning structure (like the single neuron) can find a good input-output mapping from a labeled training dataset.
 
 We will consider the case where our poor neuron is forced to predict whether a person is an 'instagram model' :star2: or a 'sports star' :running:, from two pieces of information:
@@ -86,11 +86,12 @@ We will consider the case where our poor neuron is forced to predict whether a p
 
 Suppose we surveyed a bunch of instagram models and sports stars and assemble the data as a person x feature matrix, `dataMat`, and a binary vector, `isModel`, that labels each row as representing either a sports star (`0`) or a fashion model (`1`).
 
-Let's load this resulting dataset:
+Let's load this dataset:
 
 ```matlab
 load('ModelSportData.mat','dataMat','isModel')
 ```
+
 Have a peek at the variables 'dataMat' and `isModel` that you just loaded in.
 The first column of `dataMat` is the number of instagram followers each person has, and the second column is their resting heart rate.
 
@@ -104,41 +105,46 @@ ylabel('Resting heart rate')
 colorbar
 ```
 
-Note that the number of instagram followers is on a vastly different scale to resting heart rate.
+Look at the axes.
+Can you see that the number of instagram followers is on a vastly different scale to resting heart rate?
+
 We can put them on a similar scale by applying a _z_-score transformation, which removes the mean and standardizes the variance of both features.
-By defining `dataMatNorm = zscore(dataMat)`, replot the above scatter, verifying that both measurements have been standardized.
+By defining `dataMatNorm = zscore(dataMat)`, replot the above scatter, verifying that both measurements have indeed been standardized.
 Working with `dataMatNorm` allows us to interpret the relative size of `w` as relative importance scores (independent of the very different scales of the two measurements).
 
 Now looking at the scatter using `dataMatNorm`, which of the two variables do you think will have higher weight in the trained neuron?
 
 Remember the classification error metric, `G`, that we defined in lectures?
-The computation of `G` is implemented in the function, `errorFunction`.
-Test your intuition about which relative values of weights, `w`, are likely to give good performance by evaluating the error at a few selected values of `w`:
+The computation of `G` is implemented in the function, `errorFunction`, and can be evaluated as follows:
 
 ```matlab
 totalError = errorFunction(y,w,dataMatNorm,isModel);
 ```
 
+In our case, we have `y` (the input/output mapping), `dataMatNorm` (the normalized input data), and `isModel` (the labeling we want to learn), so we want to understand which weight values, `w`, are going to give minimal errors (and check whether this matches our reasoning above).
+
 :question::question::question:
-At each of 20 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
-Take your samples from the matrix `wRand = 2*(rand(20,2)-0.5);`.
-Where in `w1,w2` space are you getting low errors?
+At each of 100 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
+Take your samples from the matrix `wRand = 2*(rand(100,2)-0.5);`.
+Where in `(w1,w2)` space are you getting low errors?
+Does this make sense given what you know about which of the two inputs are informative of models versus sports stars?
 Upload your plot (labeling axes and showing the colorbar).
+
 
 ### Learning from data through incremental updating
 
-Recall from the lecture that, from a given starting point in weight space, we can move through weight space along the direction of maximal decrease in the error function, `G`.
-This guides us to iteratively improve our classification performance and will be much more efficient than the random sampling we tried above.
+Recall from the lecture that, from a given starting point, we can move through weight space along the direction of maximal decrease in the error function, `G`.
+This guides us to iteratively improve our classification performance and is in general more efficient in finding high-performing weights than the random sampling we tried above.
 
 Let's see if our neuron can learn the difference between the two types of people by iteratively adjusting weights to reduce the error, `G` :grinning:.
 
-In the function `IncrementalUpdate`, there is a simple implementation of incremental weight updating, computed for a single point of data.
-For a given point in weight space, this evaluates the gradients in response to a single data point, and uses the learning rule in lectures to adjust the weights.
+In the function `IncrementalUpdate`, there is a simple implementation of incremental weight updating.
+For a single point of data, and a given point in weight space, IncrementalUpdate` evaluates the weight-space gradients, and uses the learning rule (from lectures) to adjust the weights.
 To test the behavior of this rule, we will randomly sample observations in the dataset over and over, and see if this strategy yields a single neuron with a good ability to map the two inputs to our desired output.
 
 ![](figs/incrementalUpdating.png)
 
-Inspect the equations above, that we introduced in the lecture (but adapted to update for each new data point, `xj` with label `t`).
+Inspect the equations above, adapted from those introduced in lectures to the form of an update in response to a new data point, `xj` (with label `t`).
 * How much are the weights adjusted when the neuron makes a prediction, `y`, equal to the sample's actual label, `t`?
 * What happens when we increase the learning rate, `eta`?
 
@@ -147,10 +153,11 @@ Try starting the weights somewhere that you know is a bad place to start so that
 ```matlab
 % Set a learning rate:
 eta = ;
-% Set initial point in weight space:
+% Set an initial point in weight space:
 w0 = ;
-numIterations = 100;
-IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations);
+numIterations = 100; % total number of updates
+delayTime = 1; % wait 1 second between each update
+IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations,delayTime);
 ```
 
 What is being plotted? Inspect the code in `IncrementalUpdate` if you are unsure.
@@ -174,24 +181,45 @@ Networks that update weights using a Hebbian learning rule are called Hopfield N
 In this tutorial, we're going to attempt to store a total of five memories: the four letters `P`, `H`, `Y`, `S`, and a checkerboard :checkered_flag:, into a binary Hopfield network.
 Exciting, huh? :satisfied:
 
-So that our network can code for the five desired images, we're going to make each neuron be a pixel in 5x5 grid, so we'll have a total of 25 neurons in our network.
+So that our network can code for the five desired images, we're going to make each neuron be a pixel in 5 x 5 grid, so we'll have a total of 25 neurons in our network.
 Recall that in a binary Hopfield network, each neuron's state is either `-1` (inactive) or `1` (active).
 
 ### Defining memories
-Our first step is to define the memories on our 5x5 grid, which we will implement in the function `defineMemories`.
+
+Our first step is to define the memories on our 5 x 5 grid, which we will implement in the function `defineMemories`.
 Plot each of our desired memories, `'P'`, `'H'`, `'Y'`, `'S'`, and `'checker'`, using the `defineMemories` function.
 
-Do you see how the state of the neurons in the network can be used to store useful information?
+![](figs/memories.png)
+
+Do you see how the state of the 25 neurons in this network can be used to represent useful information?
 Cute, huh? :smirk:
 
-Using the `defineMemories` function, write some code to represent our five desired memories in a neuron x memory (25 x 5) matrix, `memoryMatrix`.
+The `defineMemories` function outputs a 25 x 1 vector (a stretched-out version of the 5x5 grid) that defines the pixels to turn on to write out a given memory, e.g., `memory_P = defineMemories('P',true)`.
+(The second input to this function determines whether to plot the pixels arranged in a 5 x 5 grid, which helps for visualization).
+
+You can see how the 5 x 5 grid is indexed by running:
+```matlab
+reshape(1:25,5,5)
+```
+
+Looping over the `defineMemories` function for `'P'`,`'H'`,`'Y'`,`'S'`, and `'checker'`, __fill in the blanks (`...`)__ of the code template below to represent our five desired memories in a neuron x memory (25 x 5) matrix, `memoryMatrix`:
+
+```matlab
+theMemories = {'P','H','Y','S','checker'};
+numNeurons = 25;
+numMemories = 5;
+memoryMatrix = zeros(numNeurons,numMemories);
+for i = 1:numMemories
+    memoryMatrix(...) = defineMemories(...);
+end
+```
 
 ### Training a Hopfield network
 
-Ok, so we have our memories specified in `memoryMatrix`.
-Now let's train a Hopfield network with the Hebbian learning rule to try to store them.
+Ok, so now we have our memories specified in `memoryMatrix`.
+Now let's train a Hopfield network with a Hebbian learning rule to try to store them.
 
-Stare at the Hebbian learning rule for setting weights between pairs of neurons for a bit until your brain is satisfied that it can be implemented as a matrix multiplication of the memories with themselves, as we have stored them in `memoryMatrix`.
+Stare at the Hebbian learning rule for setting weights between pairs of neurons for a bit until your brain is satisfied that it can be implemented as a matrix multiplication of the memories with themselves (`memoryMatrix`).
 
 ![](figs/hebbianLearningRule.png)
 
@@ -200,14 +228,16 @@ This simple step is implemented in `trainHopfieldWeights`, so we can simply comp
 w = trainHopfieldWeights(memoryMatrix);
 ```
 
-Have a look at the weights you've just trained, as `PlotWeightMatrix(w)`.
+Run this function and then take a look at the weights you've just trained, by printing them to the command window, and visualizing them using `PlotWeightMatrix(w)`.
+Pretty, right? :heart_eyes:
 
 ### Inspecting network weights
 
 Our Hebbian rule is supposed to 'wire together' neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories should now be connected by strong weights).
 Let's check whether this actually happened.
 
-Take another look at the memories we're trying to store, displayed as a 5x5 grid:
+Take another look at the memories we're trying to store, displayed as a 5 x 5 grid:
+
 ```matlab
 f = figure('color','w');
 theMemories = {'P','H','Y','S','checker'};
@@ -217,10 +247,9 @@ for i = 1:numMemories
     defineMemories(theMemories{i},true);
     axis('square')
     title(sprintf('memory %u',i))
+    labelIndices();
 end
 ```
-
-Note that the neuron indices are distributed across the 5x5 grid as `reshape(1:25,5,5)`.
 
 Looking across the five memories, note down neuron indexes for:
 1. Two neurons that tend to be on together (or off together).

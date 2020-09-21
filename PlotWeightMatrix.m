@@ -8,6 +8,7 @@ axis('square')
 xlabel('neuron');
 ylabel('neuron');
 colormap([flipud(BF_getcmap('blues',numGrads));1,1,1;BF_getcmap('reds',numGrads)])
-colorbar()
+cB = colorbar();
+cB.Label.String = 'Weight';
 
 end

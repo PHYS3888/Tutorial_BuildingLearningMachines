@@ -1,5 +1,8 @@
 function IncrementalUpdate(y,dataMat,outputLabel,eta,w,numIterations,delayTime)
 
+%-------------------------------------------------------------------------------
+% Set defaults:
+%-------------------------------------------------------------------------------
 if nargin < 5
     % Default: assume that both measurements are equally important
     w = [-0.1,-0.1];
@@ -10,6 +13,7 @@ end
 if nargin < 7
     delayTime = 1;
 end
+%-------------------------------------------------------------------------------
 
 x1range = linspace(min(dataMat(:,1)),max(dataMat(:,1)),20);
 x2range = linspace(min(dataMat(:,2)),max(dataMat(:,2)),20);

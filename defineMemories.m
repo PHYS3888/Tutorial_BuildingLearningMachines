@@ -3,6 +3,7 @@ function myGrid = defineMemories(whatLetter,doPlot)
 if nargin < 2
     doPlot = true;
 end
+%-------------------------------------------------------------------------------
 
 % Define a baseline -1 (binary off) grid for the memory:
 myGrid = -ones(5,5);
