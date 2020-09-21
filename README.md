@@ -1,28 +1,37 @@
 # PHYS3888 Tutorial: Building Learning Machines
 
-This tutorial will walk you through some core concepts in artificial intelligence.
+This tutorial will walk you through two key components of this week's lectures:
+1. How to train a simple model neuron to perform classification.
+2. How memories can be stored in interconnected neural networks.
 
-## Part 1: Classification with a single neuron
+## PART 1: Classification with a single neuron
 
 ### Weight space of a single neuron
 
-Recall that a sigmoidal function can be used to map a neuron's activation to its output (remember when we saw this in the Dynamical Systems Tutorial?).
-Let's first get an intuition for how neuronal activation maps to neuron output for a set of inputs, `x`:
+Recall that we can use a sigmoidal function to map a neuron's activation to its output, `y` (we saw this in the [Tutorial for the Dynamics Module](https://github.com/PHYS3888/Tutorial_DynamicalSystems)).
+So let's first get an intuition for how this mapping from a set of inputs, `x` to an output, `y`, behaves:
 
 ![](figs/sigmoid.png)
 
-Write an inline function, as `y = @(x,w) ...`, that implements this nonlinear function for scalars `x` and `w`.
+Do you remember how to write inline functions (from the [Dynamics tutorial](https://github.com/PHYS3888/Tutorial_DynamicalSystems#inline-functions))?
+Prove it!: write an inline function, as `y = @(x,w) ...`, that implements this nonlinear function for scalars `x` and `w`.
 
-Can you adjust this function to work for the convention used in this tutorial: `w` is a row vector and `x` is a column vector?
+Make sure the function works for the convention used in this tutorial: `w` is a row vector and `x` is a column vector.
 
 :question::question::question:
-Check that you have implemented this function correctly by evaluating for `x = [1;1]`, `w = [2,-1]` as:
+Check that you have implemented this function correctly by evaluating for a two-input neuron: `x = [1;-1]`, `w = [2,-1]`, as:
 
 ```matlab
-x = [1; 1];
+x = [1; -1];
 w = [2, -1];
 y(x,w)
 ```
+
+Submit your result to two decimal places.
+
+Think about the computation you've just performed: you've weighted the first (positive) input, `x1 = 1` positively (`w1 = 2`), but the second (negative) input, `x2 = -1` negatively (`w2 = -1`).
+Should the result of the dot product yield a positive value that yields a value near the maximum of the sigmoid (`1`), or a negative value that yields a value nearer the minimum of the sigmoid (`0`)?
+Does your result match your logic?
 
 ### The one-dimensional neuron
 
@@ -38,12 +47,13 @@ Plot `y` as a function of `x` for some different values of the weight parameter,
 
 ### The two-dimensional neuron
 
-Let's now imagine that we have a two-dimensional input space.
-Now we have the freedom to set/learn two numbers, `w = [w1,w2]`, which determine the neuron's response to its two inputs, `x = [x1,x2]`.
+Ok, so we understand how setting `w` affects the response of a neuron to a single input.
+Today we're going to think about the behavior of neurons with two inputs.
+In this case, we have the freedom to set two numbers, `w = [w1,w2]`, which determine the neuron's response to its two inputs, `x = [x1,x2]`.
 
 ![](figs/2d_neuron.png)
 
-Recall that each point in weight space (defined by two numbers, `[w1,w2]`), now defines a unique function of the two inputs, `[x1,x2]`.
+Each point in weight space (defined by two numbers, `w1` and `w2`), now defines a unique function of the two inputs, `x1` and `x2`.
 Let's try looking at some of these possible neuron responses as a function of its inputs, at different points in weight space.
 
 ![](figs/weightSpace.png)
@@ -56,7 +66,8 @@ For example:
 
 ```matlab
 w = [1,-1];
-plotAsSurface = false; % turn this on if you prefer to look at a 3d surface
+plotAsSurface = true; % turn this off if you prefer to look at a flattened image
+f = figure('color','w');
 plotNeuronResponse(y,w,plotAsSurface);
 ```
 
@@ -154,7 +165,8 @@ Check your understanding by answering the following questions:
 Test three learning rates: `eta = 0.02`, `eta = 2`, and `eta = 200` (using initial weights `w0 = [-1,-1]` and `numIterations = 100`).
 Which of these three learning rates gives the most stable final result within the 100 iterations?
 
-## Part 2: Storing Memories in Hopfield Networks
+
+## PART 2: Storing Memories in Hopfield Networks
 
 Recall how a simple Hebbian learning mechanism can allow memories to be stored in networks of connected neurons.
 Networks that update weights using a Hebbian learning rule are called Hopfield Networks.

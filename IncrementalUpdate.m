@@ -20,8 +20,11 @@ giveMeTurboMap()
 subplot(1,2,1); hold('on'); axis('square')
 title('Neuron parameters (weight space)')
 S = scatter(w(1),w(2),50,1/1000,'filled');
-xlabel('w1 (insta followers)'); ylabel('w2 (resting heart rate)')
-subplot(1,2,2); axis('square'); hold on;
+xlabel('w1 (insta followers)');
+ylabel('w2 (resting heart rate)')
+subplot(1,2,2);
+axis('square');
+hold('on');
 scatter(dataMat(:,1),dataMat(:,2),50,(outputLabel+0.5)/2,'filled');
 H = plot(dataMat(1,1),dataMat(1,2),'xr','MarkerSize',20);
 neuronOutput = computeNeuronOutput(w,x1range,x2range);

@@ -1,4 +1,6 @@
 function plotNeuronResponse(y,w,plotAsSurface,numPoints)
+% plotNeuronResponse plots the response, y, of a single neuron to two inputs for
+%                    a given set of weights, w.
 
 %-------------------------------------------------------------------------------
 % Check input parameters:
@@ -29,11 +31,14 @@ end
 
 %-------------------------------------------------------------------------------
 % Plot:
-f = figure('color','w');
+% f = figure('color','w');
 if plotAsSurface
     surf(x1,x2,neuronOutput')
 else
     imagesc(x1,x2,neuronOutput')
+    axis('square')
+    cB = colorbar();
+    cB.Label.String = 'y';
 end
 xlabel('x1')
 ylabel('x2')
