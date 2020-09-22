@@ -365,6 +365,11 @@ How many memories can we squeeze into our 25-neuron network?
 Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overloaded network can affect the stability of our desired memories.
 Are different sets of memories more amenable to storage than others?
 
+### :fire::fire::fire: (Optional): Solidifying
+
+Try duplicating some of the memories (e.g., multiple `'P'`s).
+What do you think that such a duplication would do to the behavior of the network?
+
 ### :fire::fire::fire: (Optional): Bigger is better
 
 Try storing equivalent versions of the same five memories in a bigger network (e.g., in an 8x8 grid).
