@@ -18,7 +18,7 @@ Prove it!: write an inline function, as `y = @(x,w) ...`, that implements this n
 
 Make sure the function works for the convention used in this tutorial: `w` is a row vector and `x` is a column vector.
 
-:question::question::question:
+:question::question::question: __Q1:__
 Check that you have implemented this function correctly by evaluating for a two-input neuron: `x = [1;-1]`, `w = [2,-1]`, as:
 
 ```matlab
@@ -123,7 +123,7 @@ totalError = errorFunction(y,w,dataMatNorm,isModel);
 
 In our case, we have `y` (the input/output mapping), `dataMatNorm` (the normalized input data), and `isModel` (the labeling we want to learn), so we want to understand which weight values, `w`, are going to give minimal errors (and check whether this matches our reasoning above).
 
-:question::question::question:
+:question::question::question: __Q2:__
 At each of 100 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
 Take your samples from the matrix `wRand = 2*(rand(100,2)-0.5);`.
 Where in `(w1,w2)` space are you getting low errors?
@@ -156,7 +156,7 @@ eta = ;
 % Set an initial point in weight space:
 w0 = ;
 numIterations = 100; % total number of updates
-delayTime = 1; % wait 1 second between each update
+delayTime = 1; % wait delayTime seconds between plotting each update
 IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations,delayTime);
 ```
 
@@ -168,9 +168,9 @@ Check your understanding by answering the following questions:
 * Between the two variables, what characteristic of the individuals did the neuron learn to pay more attention to?
 * How does the width of the decision boundary vary over time? Does the neuron get 'more confident'?
 
-:question::question::question:
+:question::question::question: __Q3:__
 Test three learning rates: `eta = 0.02`, `eta = 2`, and `eta = 200` (using initial weights `w0 = [-1,-1]` and `numIterations = 100`).
-Which of these three learning rates gives the most stable final result within the 100 iterations?
+Which of these three learning rates gives an accurate and stable final result within the 100 weight-update iterations?
 
 
 ## PART 2: Storing Memories in Hopfield Networks
@@ -263,7 +263,8 @@ Can you make sense of the most strongly connected groups of neurons, given the m
 
 Repeat for the most strongly negatively correlated pairs of neurons.
 
-:question::question::question: Which set of four neurons have states that are most strongly correlated to each other across the five memories?
+:question::question::question: __Q4:__
+Which set of four neurons have states that are most strongly correlated to each other across the five memories?
 
 
 ### Exploring stable states
@@ -314,7 +315,7 @@ memoryRestore(memoryMatrix,w,startNearMemoryNumber)
 How did the network do?
 Repeat the exercise for all of the other memories by altering `startNearMemoryNumber`.
 
-:question::question::question:
+:question::question::question: __Q5:__
 Are some memories easier to restore than others?
 Why might this be?
 
@@ -343,7 +344,7 @@ _Don't forget you can visualize corrupted network weights as `PlotWeightMatrix(w
 
 Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
 
-:question::question::question:
+:question::question::question: __Q6:__
 At approximately what proportion, `propCorrupt`, does the network cease to have useful function?
 
 * How does this compare to a computer circuit?
