@@ -194,7 +194,7 @@ Plot each of our desired memories, `'P'`, `'H'`, `'Y'`, `'S'`, and `'checker'`, 
 Do you see how the state of the 25 neurons in this network can be used to represent useful information?
 Cute, huh? :smirk:
 
-The `defineMemories` function outputs a 25 x 1 vector (a stretched-out version of the 5x5 grid) that defines the pixels to turn on to write out a given memory, e.g., `memory_P = defineMemories('P',true)`.
+The `defineMemories` function outputs a 25 x 1 vector (a stretched-out version of the 5 x 5 grid) that defines the pixels to turn on to write out a given memory, e.g., `memory_P = defineMemories('P',true)`.
 (The second input to this function determines whether to plot the pixels arranged in a 5 x 5 grid, which helps for visualization).
 
 You can see how the 5 x 5 grid is indexed by running:
@@ -233,7 +233,8 @@ Pretty, right? :heart_eyes:
 
 ### Inspecting network weights
 
-Our Hebbian rule is supposed to 'wire together' neurons that 'fire together' (i.e., pixels that tend to be on together or off together across the memories should now be connected by strong weights).
+Our Hebbian rule is designed to 'wire together' neurons that 'fire together'.
+That is, pixels that tend to be on together (or off together) across the memories should now be connected by strong weights.
 
 Let's check whether this actually happened.
 
@@ -340,7 +341,7 @@ This function takes as input a trained weight matrix, `w`, and outputs `wCorrupt
 For example, setting `propCorrupt = 0.1` sets 10% of the weights to zero.
 
 Repeat the above exercise on memory restoration, but using a corrupted network defined by `wCorrupted` (instead of the original network defined by `w`).
-_Don't forget you can visualize corrupted network weights as `PlotWeightMatrix(wCorrupted)`_
+_Don't forget you can visualize corrupted network weights as_ `PlotWeightMatrix(wCorrupted)`
 
 Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
 
