@@ -4,7 +4,7 @@ numDataPoints = size(dataMat,1);
 
 G = zeros(numDataPoints,1);
 for i = 1:numDataPoints
-    G(i) = isModel(i)*log(y(dataMat(i,:)',w)) + (1-isModel(i))*(1-y(dataMat(i,:)',w));
+    G(i) = isModel(i)*log(y(dataMat(i,:)',w)) + (1-isModel(i))*log(1-y(dataMat(i,:)',w));
 end
 
 totError = -sum(G);
