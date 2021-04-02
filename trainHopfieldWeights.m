@@ -1,6 +1,6 @@
 function w = trainHopfieldWeights(memoryMatrix,eta)
 
-if nargin < 1
+if nargin < 2
     % Learning rate (unimportant for binary networks):
     eta = 1;
 end

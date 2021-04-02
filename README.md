@@ -84,7 +84,7 @@ We will consider the case where our poor neuron is forced to predict whether a p
 1. Number of instagram followers
 2. Resting heart rate
 
-Suppose we surveyed a bunch of instagram models and sports stars and assemble the data as a person x feature matrix, `dataMat`, and a binary vector, `isModel`, that labels each row as representing either a sports star (`0`) or a fashion model (`1`).
+Suppose we surveyed a bunch of instagram models and sports stars and assemble the data as a person x feature matrix, `dataMat`, and a binary vector, `isModel`, that labels each row as representing either a sports star (`0`) or an instagram model (`1`).
 
 Let's load this dataset:
 
