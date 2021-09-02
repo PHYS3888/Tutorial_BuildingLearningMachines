@@ -4,18 +4,18 @@ function [xNext,numIterations] = runHopfield(w,x0)
 
 maxIters = 10;
 numNeurons = length(x0);
-thresholdFun = @(x) 2*(x>=0)-1; % Theta
+thresholdFun = @(x) 2*(x>=0) - 1; % Theta
 
 % ---Asynchronous updates until converged---
 xPrev = nan(size(x0));
 xNext = x0;
 numIterations = 0;
-while ~all(xNext == xPrev) && (numIterations < maxIters)
+while ~all(xNext(:) == xPrev(:)) && (numIterations < maxIters)
     numIterations = numIterations + 1;
     fprintf(1,'Iteration %u\n',numIterations);
-    
+
     xPrev = xNext;
-    % Update order:
+    % Random update order:
     updateOrder = randperm(numNeurons);
     for k = 1:numNeurons
         myNeuron = updateOrder(k);

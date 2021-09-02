@@ -1,17 +1,18 @@
 # PHYS3888 Tutorial: Building Learning Machines
 
-This tutorial will walk you through two key components of this week's lectures:
+In this tutorial, we'll explore two key components of this week's lectures:
+
 1. How to train a simple model neuron to perform classification.
-2. How memories can be stored in interconnected neural networks.
+2. How memories can be stored in inter-connected neural networks.
 
 ## PART 1: Classification with a single neuron
 
 ### Weight space of a single neuron
 
 Recall that we can use a sigmoidal function to map a neuron's activation to its output, `y` (we saw this in the [Tutorial for the Dynamics Module](https://github.com/PHYS3888/Tutorial_DynamicalSystems)).
-So let's first get an intuition for how this mapping from a set of inputs, `x` to an output, `y`, behaves:
+So let's first get an intuition for how this mapping from a set of inputs, `x`, to an output, `y`, behaves:
 
-![](figs/sigmoid.png)
+![Sigmoidal function](figs/sigmoid.png)
 
 Do you remember how to write inline functions (from the [Dynamics tutorial](https://github.com/PHYS3888/Tutorial_DynamicalSystems#inline-functions))?
 Prove it!: write an inline function, as `y = @(x,w) ...`, that implements this nonlinear function for scalars `x` and `w`.
@@ -31,32 +32,33 @@ Submit your result to two decimal places.
 
 Think about the computation you've just performed: you've weighted the first (positive) input, `x1 = 1` positively (`w1 = 2`), but the second (negative) input, `x2 = -1` negatively (`w2 = -1`).
 Should the result of the dot product yield a positive value that yields a value near the maximum of the sigmoid (`1`), or a negative value that yields a value nearer the minimum of the sigmoid (`0`)?
+
 Does your result match your logic?
 
 ### The one-dimensional neuron
 
-![!](figs/1d_neuron.png)
+![One-dimensional neuron](figs/1d_neuron.png)
 
 Consider the case where our model neuron has a single input, `x`.
-Then we have just a single degree of freedom in determining neuron's response to that input, through the scalar weight, `w`.
+Then we have just a single degree of freedom in determining the neuron's response to that input, through the scalar weight, `w`.
 Plot `y` as a function of `x` for some different values of the weight parameter, `w`, sampling both positive and negative values.
 
-* What happens when `w = 0`?
-* How does a higher weight magnitude shape the neuron's response to the same input?
-* For the same weight magnitude, what does flipping its sign do to the neuron's response to the same input?
+- What happens when `w = 0`?
+- How does a higher weight magnitude shape the neuron's response to the same input?
+- For the same weight magnitude, what does flipping its sign do to the neuron's response to the same input?
 
 ### The two-dimensional neuron
 
 Ok, so we understand how setting `w` affects the response of a neuron to a single input.
-Today we're going to think about the behavior of neurons with two inputs.
+Today we're going to think more about the behavior of a neuron with two inputs.
 In this case, we have the freedom to set two numbers, `w = [w1,w2]`, which determine the neuron's response to its two inputs, `x = [x1,x2]`.
 
-![](figs/2d_neuron.png)
+![A two-input neuron](figs/2d_neuron.png)
 
 Each point in weight space (defined by two numbers, `w1` and `w2`), now defines a unique function of the two inputs, `x1` and `x2`.
 Let's try looking at some of these possible neuron responses as a function of its inputs, at different points in weight space.
 
-![](figs/weightSpace.png)
+![Weight space](figs/weightSpace.png)
 
 We can plot these surfaces by setting `w`, and then computing the function `y` across a grid in `x1` and `x2`.
 Take a look at the function `plotNeuronResponse` and verify that you understand how it does these steps.
@@ -71,16 +73,16 @@ f = figure('color','w');
 plotNeuronResponse(y,w,plotAsSurface);
 ```
 
-* When does the neuron tuned to `w = [1,-1]` have minimal output?
-Maximal output?
-* If we set `w = [1,0.2]`, which of the two inputs is the neuron more sensitive to? Plot the neuron's response to inputs for this set of weights to check your intuition.
+- When does the neuron tuned to `w = [1,-1]` have minimal output? Maximal output?
+- If we set `w = [1,0.2]`, which of the two inputs is the neuron more sensitive to? Plot the neuron's response to inputs for this set of weights to check your intuition.
 
-### Training a single neuron to perform classification
+### Training a single neuron to classify inputs into two types
 
 In lectures we found that the process of adjusting weights allows the neuron to learn a desired relationship between inputs and outputs.
-We took our first steps towards the machine-learning approach to _supervised learning_ whereby a flexible learning structure (like the single neuron) can find a good input-output mapping from a labeled training dataset.
+We took our first steps towards the machine-learning approach of _supervised learning_, in which a flexible learning structure (like the single neuron) can learn a good input-output mapping from being exposed to a labeled training dataset.
 
 We will consider the case where our poor neuron is forced to predict whether a person is an 'instagram model' :star2: or a 'sports star' :running:, from two pieces of information:
+
 1. Number of instagram followers
 2. Resting heart rate
 
@@ -92,17 +94,18 @@ Let's load this dataset:
 load('ModelSportData.mat','dataMat','isModel')
 ```
 
-Have a peek at the variables 'dataMat' and `isModel` that you just loaded in.
+Have a peek at the variables `dataMat` and `isModel` that you just loaded in.
 The first column of `dataMat` is the number of instagram followers each person has, and the second column is their resting heart rate.
 
 We can use the `scatter` function to plot the data as a scatter, coloring each individual by their `sport`/`model` label, e.g.,:
+
 ```matlab
 f = figure('color','w');
 scatter(dataMat(:,1),dataMat(:,2),50,isModel,'filled');
 colormap(cool)
 xlabel('Number of instagram followers')
 ylabel('Resting heart rate')
-colorbar
+colorbar()
 ```
 
 Look at the axes.
@@ -121,7 +124,8 @@ The computation of `G` is implemented in the function, `errorFunction`, and can 
 totalError = errorFunction(y,w,dataMatNorm,isModel);
 ```
 
-In our case, we have `y` (the input/output mapping), `dataMatNorm` (the normalized input data), and `isModel` (the labeling we want to learn), so we want to understand which weight values, `w`, are going to give minimal errors (and check whether this matches our reasoning above).
+In our case, we have `y` (the input/output mapping), `dataMatNorm` (the normalized input data), and `isModel` (the labeling we want to learn).
+We want to understand which weight values, `w`, yield minimal errors (and check whether this matches our reasoning above).
 
 :question::question::question: __Q2:__
 At each of 100 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
@@ -130,23 +134,23 @@ Where in `(w1,w2)` space are you getting low errors?
 Does this make sense given what you know about which of the two inputs are informative of models versus sports stars?
 Upload your plot (labeling axes and showing the colorbar).
 
-
 ### Learning from data through incremental updating
 
 Recall from the lecture that, from a given starting point, we can move through weight space along the direction of maximal decrease in the error function, `G`.
 This guides us to iteratively improve our classification performance and is in general more efficient in finding high-performing weights than the random sampling we tried above.
 
-Let's see if our neuron can learn the difference between the two types of people by iteratively adjusting weights to reduce the error, `G` :grinning:.
+Let's see if our neuron can learn the difference between the two types of people by iteratively adjusting weights to reduce the error, `G` :grinning:
 
 In the function `IncrementalUpdate`, there is a simple implementation of incremental weight updating.
 For a single point of data, and a given point in weight space, IncrementalUpdate` evaluates the weight-space gradients, and uses the learning rule (from lectures) to adjust the weights.
 To test the behavior of this rule, we will randomly sample observations in the dataset over and over, and see if this strategy yields a single neuron with a good ability to map the two inputs to our desired output.
 
-![](figs/incrementalUpdating.png)
+![Incremental weight updates](figs/incrementalUpdating.png)
 
 Inspect the equations above, adapted from those introduced in lectures to the form of an update in response to a new data point, `xj` (with label `t`).
-* How much are the weights adjusted when the neuron makes a prediction, `y`, equal to the sample's actual label, `t`?
-* What happens when we increase the learning rate, `eta`?
+
+- How much are the weights adjusted when the neuron makes a prediction, `y`, equal to the sample's actual label, `t`?
+- What happens when we increase the learning rate, `eta`?
 
 Try starting the weights somewhere that you know is a bad place to start so that we can investigate whether the learning rule above moves us to a good set of weights:
 
@@ -163,15 +167,15 @@ IncrementalUpdate(y,dataMatNorm,isModel,eta,w0,numIterations,delayTime);
 What is being plotted? Inspect the code in `IncrementalUpdate` if you are unsure.
 
 Check your understanding by answering the following questions:
-* Where in weight space did the neuron end up?
-* Did the neuron get more accurate?
-* Between the two variables, what characteristic of the individuals did the neuron learn to pay more attention to?
-* How does the width of the decision boundary vary over time? Does the neuron get 'more confident'?
+
+- Where in weight space did the neuron end up?
+- Did the neuron get more accurate?
+- Between the two variables, what characteristic of the individuals did the neuron learn to pay more attention to?
+- How does the width of the decision boundary vary over time? Does the neuron get 'more confident'?
 
 :question::question::question: __Q3:__
 Test three learning rates: `eta = 0.02`, `eta = 2`, and `eta = 200` (using initial weights `w0 = [-1,-1]` and `numIterations = 100`).
 Which of these three learning rates gives an accurate and stable final result within the 100 weight-update iterations?
-
 
 ## PART 2: Storing Memories in Hopfield Networks
 
@@ -189,7 +193,7 @@ Recall that in a binary Hopfield network, each neuron's state is either `-1` (in
 Our first step is to define the memories on our 5 x 5 grid, which we will implement in the function `defineMemories`.
 Plot each of our desired memories, `'P'`, `'H'`, `'Y'`, `'S'`, and `'checker'`, using the `defineMemories` function.
 
-![](figs/memories.png)
+![Our memories](figs/memories.png)
 
 Do you see how the state of the 25 neurons in this network can be used to represent useful information?
 Cute, huh? :smirk:
@@ -198,6 +202,7 @@ The `defineMemories` function outputs a 25 x 1 vector (a stretched-out version o
 (The second input to this function determines whether to plot the pixels arranged in a 5 x 5 grid, which helps for visualization).
 
 You can see how the 5 x 5 grid is indexed by running:
+
 ```matlab
 reshape(1:25,5,5)
 ```
@@ -221,9 +226,10 @@ Now let's train a Hopfield network with a Hebbian learning rule to try to store 
 
 Stare at the Hebbian learning rule for setting weights between pairs of neurons for a bit until your brain is satisfied that it can be implemented as a matrix multiplication of the memories with themselves (`memoryMatrix`).
 
-![](figs/hebbianLearningRule.png)
+![Hebbian learning rule](figs/hebbianLearningRule.png)
 
 This simple step is implemented in `trainHopfieldWeights`, so we can simply compute our weights, `w`, as:
+
 ```matlab
 w = trainHopfieldWeights(memoryMatrix);
 ```
@@ -245,14 +251,15 @@ InspectMemories
 ```
 
 Looking across the five memories, note down neuron indexes for:
+
 1. Two neurons that tend to be on together (or off together).
 2. Two neurons that tend to be anti-correlated (when one is on the other is off and vice versa).
 3. Two neurons with no particular synchronization.
 
 For each of these four pairs, predict what the weight will be in the trained Hopfield network (high positive, high negative, or near-zero).
 
-* Test your intuition by checking the corresponding trained weights in `w`.
-* Do the values of `w` for your mirror the patterns in the memories?
+- Test your intuition by checking the corresponding trained weights in `w`.
+- Do the values of `w` capture the patterns in the memories?
 
 #### The strongest weights
 
@@ -267,7 +274,6 @@ Repeat for the most strongly negatively correlated pairs of neurons.
 :question::question::question: __Q4:__
 Which set of four neurons have states that are most strongly correlated to each other across the five memories?
 
-
 ### Exploring stable states
 
 Ok, so we have trained a binary Hopfield network with five memories, yielding the trained weights, `w`.
@@ -277,9 +283,11 @@ Now comes the time to test the network's performance in reproducing all of these
 We're going to look at some of the stable states of the trained network by feeding it lots of random initial states and seeing what sorts of states the network settles down to (hopefully it can reproduce some of our memories :pray:).
 
 To explore the behavior of the trained network, we're going to use the `runHopfield(w,startPoint)`.
+
 ___`runHopfield` simulates the network dynamics, determined by activation rule of individual neurons, and outputs the state of the network when it reaches equilibrium.___
 
 Fill in code below to set a random starting point (e.g., `defineMemories` has a `'random'` setting), and inspect the types of equilibrium states the trained network has:
+
 ```matlab
 numRepeats = 30;
 f = figure('color','w');
@@ -293,12 +301,11 @@ for i = 1:numRepeats
 end
 ```
 
-Armed with such simple rules, how did our little neural network do?:
-* What sort of stable states did you find?
-* Do any of them resemble the memories that we've been trying to store?
-* Did you find any stable states that are inverses of your memories?
-Why might this happen?
+Armed with such simple rules, how did our little neural network do?
 
+- What sort of stable states did you find?
+- Do any of them resemble the memories that we've been trying to store?
+- Did you find any stable states that are inverses of your memories? Why might this happen?
 
 ### Restoring memories
 
@@ -348,8 +355,8 @@ Qualitatively explore the robustness of the memory restoration capability as a f
 :question::question::question: __Q6:__
 At approximately what proportion, `propCorrupt`, does the network cease to have useful function?
 
-* How does this compare to a computer circuit?
-* How close was your original guess?
+- How does this compare to a computer circuit?
+- How close was your original guess?
 
 ---
 
@@ -362,6 +369,7 @@ Summarize the network's performance as `meanMatch` as a function of `propCorrupt
 How do these curves vary with the target memory to be restored?
 
 ### :fire::fire::fire: (Optional): An overloaded network
+
 How many memories can we squeeze into our 25-neuron network?
 
 Repeat the above, adding new memories (e.g., by adding new cases to `defineMemories`), and see how an overloaded network can affect the stability of our desired memories.

@@ -43,6 +43,7 @@ end
 xlabel('x1')
 ylabel('x2')
 zlabel('y')
+
 % Set rainbow colormap:
 giveMeTurboMap();
 
