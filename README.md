@@ -256,15 +256,16 @@ Looking across the five memories, note down neuron indexes for:
 2. Two neurons that tend to be anti-correlated (when one is on the other is off and vice versa).
 3. Two neurons with no particular synchronization.
 
-For each of these four pairs, predict what the weight will be in the trained Hopfield network (high positive, high negative, or near-zero).
+For each of these four pairs, predict what the weight will be in the trained Hopfield network: (i) a high positive weight, (ii) a high negative weight, or (iii) a near-zero weight.
 
 - Test your intuition by checking the corresponding trained weights in `w`.
 - Do the values of `w` capture the patterns in the memories?
 
 #### The strongest weights
 
-Note that you can threshold the weights (`wStrong = (w > t)`, for some threshold `t`), to construct a binary adjacency matrix, `wStrong`, that removes all weights less than the threshold `t`.
-Recall from the first lecture that you can convert a binary adjacency matrix to a graph as (`G = graph(A)`) and plot it (`p = plot(G)`).
+You can threshold the weights, e.g., as `wStrong = (w > t)`, for some threshold `t`.
+This allows you to construct a binary adjacency matrix, `wStrong`, that removes all weights less than the threshold `t`.
+Recall from the first lecture that you can convert a binary adjacency matrix to a graph as `G = graph(A)` and plot it as `p = plot(G)`.
 
 Using these techniques, plot a graph containing just the strongest neuron-neuron weights by setting a sensible threshold on `w`.
 Can you make sense of the most strongly connected groups of neurons, given the memories that you defined?
@@ -341,9 +342,11 @@ Write it down! :memo:
 <!-- ![](figs/brainDamage.png) -->
 
 Check out the function, `brainDamage`:
+
 ```matlab
 wCorrupted = brainDamage(w,propCorrupt);
 ```
+
 This function takes as input a trained weight matrix, `w`, and outputs `wCorrupted`, a version where a set proportion of weights, `propCorrupt`, have been randomly set to zero.
 For example, setting `propCorrupt = 0.1` sets 10% of the weights to zero.
 
