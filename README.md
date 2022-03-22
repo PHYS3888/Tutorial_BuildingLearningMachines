@@ -1,4 +1,4 @@
-# PHYS3888 Tutorial: Building Learning Machines
+# PHYS3888 Computer Lab: Building Learning Machines
 
 In this tutorial, we'll explore two key components of this week's lectures:
 
@@ -128,11 +128,15 @@ In our case, we have `y` (the input/output mapping), `dataMatNorm` (the normaliz
 We want to understand which weight values, `w`, yield minimal errors (and check whether this matches our reasoning above).
 
 :question::question::question: __Q2:__
+
 At each of 100 random values of `w`, compute the classification error using `errorFunction`, and plot this value as color in a `scatter` plot in `w1,w2` space.
 Take your samples from the matrix `wRand = 2*(rand(100,2)-0.5);`.
-Where in `(w1,w2)` space are you getting low errors?
+Upload your plot.
+Don't forget to label your axes (`xlabel()`, `ylabel()`).
+When plotting color, it's good practice to show and label a colorbar so the reader knows what the color scale represents. You can first create the colorbar, `cB = colorbar;`, and then label it with some text (e.g., 'myLabel') as `cB.Label.String = 'myLabel'`.
+
+Where in (`w1`,`w2`) space are you getting low errors?
 Does this make sense given what you know about which of the two inputs are informative of models versus sports stars?
-Upload your plot (labeling axes and showing the colorbar).
 
 ### Learning from data through incremental updating
 
@@ -325,8 +329,10 @@ How did the network do?
 Repeat the exercise for all of the other memories by altering `startNearMemoryNumber`.
 
 :question::question::question: __Q5:__
-Are some memories easier to restore than others?
-Why might this be?
+Which memory is the most difficult to restore?
+
+:question::question::question: __Q6:__
+Briefly describe one factor that contributes to some memories being harder to reconstruct than others.
 
 ### Brain damage
 
@@ -353,17 +359,48 @@ For example, setting `propCorrupt = 0.1` sets 10% of the weights to zero.
 Repeat the above exercise on memory restoration, but using a corrupted network defined by `wCorrupted` (instead of the original network defined by `w`).
 _Don't forget you can visualize corrupted network weights as_ `PlotWeightMatrix(wCorrupted)`
 
-Qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
+Using `memoryRestore` with `wCorrupted`, qualitatively explore the robustness of the memory restoration capability as a function of the proportion of weights you set to zero.
 
-:question::question::question: __Q6:__
-At approximately what proportion, `propCorrupt`, does the network cease to have useful function?
+#### Being quantitative
 
-- How does this compare to a computer circuit?
-- How close was your original guess?
+We can explore how well the network recovers the original memory by counting how many neurons match after attempting to restore the memory.
+Check you understand how this is done in the code below, and fill in the missing code (labeled `...`):
+
+```matlab
+memoryIndex = 2; % Pick a memory
+numRepeats = 100;
+N = 25; % Number of propCorrupt values
+propCorruptRange = linspace(0,1,N);
+sumMatch = zeros(N,numRepeats); % sum of matching neurons
+theMemory = memoryMatrix(:,memoryIndex); % the memory
+for i = 1:N
+    for j = 1:numRepeats
+        wCorrupted = brainDamage(w,propCorruptRange(i)); % corrupt weights
+        corruptedMemory = flipALittle(theMemory); % distort the original memory
+        stableState = runHopfield(wCorrupted,corruptedMemory); % apply the corrupted Hopfield network
+        % Count matches between the memory and the stable state of the corrupted Hopfield network:
+        sumMatch(i,j) = ...;
+    end
+end
+meanMatch = mean(sumMatch,2);
+```
+
+Note that we're repeating the calculation 100 times (`numRepeats`) and averaging the number of matches across these repeats (`meanMatch`).
+
+Plot the mean proportion of matching neurons (`meanMatch`) as a function of proportion of corrupted weights (`propCorruptRange`) for Memory 2 ('H').
+
+:question::question::question: __Q7:__
+Given that one neuron is flipped by `flipALittle`, explain why the criterion `meanMatch <= 24` corresponds to the network ceasing to exhibit useful function.
+
+:question::question::question: __Q8:__
+At what proportion, `propCorrupt`, does the network cease to have useful function at recovering the Memory 2 ('H').
+
+- How do you think this level of robustness compares to randomizing parts of a computer circuit?
+- Was your original guess close?
 
 ---
 
-## Extra exercises for neural network lovers
+## Extra exercises for neural-network lovers
 
 ### :fire::fire::fire: (Optional): Quantifying performance breakdown
 
