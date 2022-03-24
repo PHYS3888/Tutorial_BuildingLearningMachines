@@ -219,9 +219,11 @@ numNeurons = 25;
 numMemories = 5;
 memoryMatrix = zeros(numNeurons,numMemories);
 for i = 1:numMemories
-    memoryMatrix(...) = defineMemories(...);
+    memoryMatrix(...) = defineMemories(theMemories{i});
 end
 ```
+
+Note how `theMemories` is a cell array of strings, so we need to use curly braces (`{i}`) instead of parentheses (`(i)`, as we would use for a normal vector) to access the strings.
 
 ### Training a Hopfield network
 
@@ -297,9 +299,9 @@ Fill in code below to set a random starting point (e.g., `defineMemories` has a 
 numRepeats = 30;
 f = figure('color','w');
 for i = 1:numRepeats
+    subplot(5,6,i);
     startPoint = ; % FILL IN A RANDOM MEMORY
     [finalPoint,numIters] = runHopfield(w,startPoint);
-    subplot(5,6,i);
     imagesc(reshape(finalPoint,5,5));
     axis('square')
     colormap(flipud(gray))

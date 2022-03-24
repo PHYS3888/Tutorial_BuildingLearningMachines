@@ -1,13 +1,13 @@
 function myGrid = defineMemories(whatLetter,doPlot)
 
 if nargin < 2
-    doPlot = true;
+    doPlot = false;
 end
 %-------------------------------------------------------------------------------
 
 % Define a baseline -1 (binary off) grid for the memory:
 myGrid = -ones(5,5);
-index = reshape(1:25,5,5);
+% index = reshape(1:25,5,5);
 
 % Make the letter:
 switch whatLetter
