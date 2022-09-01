@@ -68,7 +68,7 @@ For example:
 
 ```matlab
 w = [1,-1];
-plotAsSurface = true; % turn this off if you prefer to look at a flattened image
+plotAsSurface = true; % turn this off (false) if you prefer to look at a flattened image
 f = figure('color','w');
 plotNeuronResponse(y,w,plotAsSurface);
 ```
